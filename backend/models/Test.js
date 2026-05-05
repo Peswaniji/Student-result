@@ -10,6 +10,12 @@ const testSchema = new mongoose.Schema({
         type: Date,
         required: [true, 'Please add a test date'],
         default: Date.now
+    },
+    maxMarks: {
+        type: Number,
+        required: [true, 'Please add max marks'],
+        min: [1, 'Max marks must be at least 1'],
+        default: 100
     }
 }, {
     timestamps: true

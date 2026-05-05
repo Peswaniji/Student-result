@@ -6,13 +6,18 @@ const Result = require('../models/Result');
 // @access  Private (Admin)
 exports.createTest = async (req, res) => {
     try {
-        const { name, date } = req.body;
+        const { name, date, maxMarks } = req.body;
 
         if (!name || !date) {
             return res.status(400).json({ success: false, message: 'Please provide name and date' });
         }
 
-        const test = await Test.create({ name, date });
+        const parsedMaxMarks = Number(maxMarks ?? 100);
+        if (Number.isNaN(parsedMaxMarks) || parsedMaxMarks <= 0) {
+            return res.status(400).json({ success: false, message: 'Max marks must be a number greater than 0' });
+        }
+
+        const test = await Test.create({ name, date, maxMarks: parsedMaxMarks });
 
         res.status(201).json({
             success: true,
@@ -44,7 +49,7 @@ exports.getTests = async (req, res) => {
 // @access  Private (Admin)
 exports.updateTest = async (req, res) => {
     try {
-        const { name, date } = req.body;
+        const { name, date, maxMarks } = req.body;
         
         let test = await Test.findById(req.params.id);
         if (!test) {
@@ -53,6 +58,13 @@ exports.updateTest = async (req, res) => {
 
         test.name = name || test.name;
         test.date = date || test.date;
+        if (maxMarks !== undefined && maxMarks !== null && maxMarks !== '') {
+            const parsedMaxMarks = Number(maxMarks);
+            if (Number.isNaN(parsedMaxMarks) || parsedMaxMarks <= 0) {
+                return res.status(400).json({ success: false, message: 'Max marks must be a number greater than 0' });
+            }
+            test.maxMarks = parsedMaxMarks;
+        }
         
         await test.save();
 

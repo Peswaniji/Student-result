@@ -1,5 +1,6 @@
 const Result = require('../models/Result');
 const Student = require('../models/Student');
+const Test = require('../models/Test');
 const { uploadFile } = require('../utils/imagekit');
 
 // @desc    Add a result with optional answer sheets
@@ -24,12 +25,18 @@ exports.addResult = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid studentId or testId format' });
         }
 
+        const test = await Test.findById(safeTestId).select('maxMarks').lean();
+        if (!test) {
+            return res.status(404).json({ success: false, message: 'Test not found' });
+        }
+
         // Safely convert marks to number
         const numericMarks = Number(marks);
+        const maxMarks = Number(test.maxMarks || 100);
 
         // Validate marks constraints
-        if (isNaN(numericMarks) || numericMarks < 0 || numericMarks > 100) {
-            return res.status(400).json({ success: false, message: 'Marks must be a valid number between 0 and 100' });
+        if (isNaN(numericMarks) || numericMarks < 0 || numericMarks > maxMarks) {
+            return res.status(400).json({ success: false, message: `Marks must be a valid number between 0 and ${maxMarks}` });
         }
 
         // Check if result already exists for this student and test
@@ -80,6 +87,8 @@ exports.addResult = async (req, res) => {
 exports.getPublicResults = async (req, res) => {
     try {
         const { testId } = req.params;
+        const test = await Test.findById(testId).select('maxMarks').lean();
+        const maxMarks = Number(test?.maxMarks || 100);
 
         // Fetch and sort all results directly from DB
         const results = await Result.find({ testId })
@@ -124,7 +133,8 @@ exports.getPublicResults = async (req, res) => {
             totalStudents,
             averageMarks,
             highestMarks,
-            lowestMarks
+            lowestMarks,
+            maxMarks
         };
 
         res.status(200).json({
@@ -149,7 +159,7 @@ exports.getPrivateResult = async (req, res) => {
         // 1. First find the result by token to ensure it exists and get its testId
         const result = await Result.findOne({ token })
             .populate('studentId', 'name rollNo')
-            .populate('testId', 'name date')
+            .populate('testId', 'name date maxMarks')
             .lean();
 
         if (!result) {
@@ -170,6 +180,7 @@ exports.getPrivateResult = async (req, res) => {
             test: result.testId,
             marks: result.marks,
             rank: studentRank,
+            maxMarks: result.testId?.maxMarks || 100,
             answerSheets: result.answerSheets || []
         };
 
@@ -189,7 +200,7 @@ exports.getAllResults = async (req, res) => {
     try {
         const results = await Result.find()
             .populate('studentId', 'name rollNo phone')
-            .populate('testId', 'name date')
+            .populate('testId', 'name date maxMarks')
             .sort({ createdAt: -1 });
         
         res.status(200).json({
@@ -275,13 +286,16 @@ exports.updateResult = async (req, res) => {
         }
 
         const numericMarks = Number(marks);
-        if (isNaN(numericMarks) || numericMarks < 0 || numericMarks > 100) {
-            return res.status(400).json({ success: false, message: 'Marks must be between 0 and 100' });
-        }
 
         let result = await Result.findById(req.params.id);
         if (!result) {
             return res.status(404).json({ success: false, message: 'Result not found' });
+        }
+
+        const test = await Test.findById(result.testId).select('maxMarks').lean();
+        const maxMarks = Number(test?.maxMarks || 100);
+        if (isNaN(numericMarks) || numericMarks < 0 || numericMarks > maxMarks) {
+            return res.status(400).json({ success: false, message: `Marks must be between 0 and ${maxMarks}` });
         }
 
         result.marks = numericMarks;
