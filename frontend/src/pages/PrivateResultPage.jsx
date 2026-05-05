@@ -111,6 +111,14 @@ export default function PrivateResultPage() {
 
       {r && (
         <div className="animate-fade-in">
+          {/* School Header */}
+          <div style={{ padding: '20px 20px 0', textAlign: 'center' }}>
+            <img src="/logo.png" alt="School Logo" style={{ height: 60, marginBottom: 8 }} />
+            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, color: 'var(--ink)', marginBottom: 16 }}>
+              Vivekanand Sanskar Senior Secondary School Gangapur City
+            </div>
+          </div>
+
           {/* Score hero */}
           <div style={{ padding: '20px 20px 0' }}>
             <div className="private-score">

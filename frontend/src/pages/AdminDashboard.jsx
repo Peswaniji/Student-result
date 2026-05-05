@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api, clearAuthToken, getAuthToken, getErrorMessage } from '../services/api'
 
 const TABS = ['Tests', 'Students', 'Results', 'Private Links', 'Overview']
-const SCHOOL_NAME = 'Swami Vivekanand Govt Model School Gangapur City'
+const SCHOOL_NAME = 'Vivekanand Sanskar Senior Secondary School Gangapur City'
 
 // Confirmation Dialog Component
 function ConfirmDialog({ title, message, onConfirm, onCancel, isDangerous = false }) {
@@ -490,8 +490,8 @@ export default function AdminDashboard() {
     const url = `${window.location.origin}/result/${tok}`
     const publicUrl = `${window.location.origin}/public`
     const name = student?.name || 'Student'
-    const congratMsg = student?.rank === 1 ? '\n\n🎉 *Congratulations! You topped the test!*' : ''
-    const msg = `📊 *${SCHOOL_NAME}*\n\nHi ${name}! Your ${generatedStudent ? 'result' : 'results'} are ready.${congratMsg}\n\n🔗 View marks & answer sheets:\n${url}\n\n📋 See full leaderboard:\n${publicUrl}\n\n_No login required_`
+    const congratMsg = student?.rank === 1 ? '\n\n🎉 Congratulations! You topped the test!' : ''
+    const msg = `${SCHOOL_NAME}\n\nHi ${name},\nYour result is ready.${congratMsg}\n\nView your marks & answer sheets:\n${url}\n\nLeaderboard:\n${publicUrl}`
     if (student?.phone) {
       const phone = student.phone.replace(/\D/g, '')
       return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
