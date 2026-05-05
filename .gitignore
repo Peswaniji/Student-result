@@ -1,0 +1,44 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build outputs
+backend/dist/
+frontend/dist/
+frontend/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Runtime data
+.cache/
+tmp/
+
+# Uploads (optional - if handling locally)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# OS specific
+*.pem
+*.key

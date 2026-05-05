@@ -1,0 +1,381 @@
+# 📄 PRODUCT REQUIREMENT DOCUMENT (PRD)
+
+## 🧠 Product Name:
+
+**Student Result Management System (Mobile-First)**
+
+---
+
+# 1. 🎯 Objective
+
+To build a mobile-first web application that allows teachers to easily manage student test results and allows students to access their results with minimal friction.
+
+The system should reduce manual work (like Excel, WhatsApp sharing, and file handling) and provide a streamlined workflow for both teachers and students.
+
+---
+
+# 2. 👥 Target Users
+
+### 👨‍🏫 Teachers (Admin)
+
+* School teachers conducting tests
+* Need fast data entry and result management
+
+### 👨‍🎓 Students
+
+* Want quick access to results
+* Prefer simple and mobile-friendly interface
+
+---
+
+# 3. 🚨 Problem Statement
+
+### Current Problems:
+
+* Manual data entry in Excel
+* Sharing results individually via WhatsApp
+* Managing answer sheets separately
+* No centralized system
+* Students depend on teacher for results
+
+---
+
+# 4. 💡 Solution Overview
+
+A dual-interface system:
+
+1. **Admin Portal (Teacher)**
+2. **Student Interface (Public + Private)**
+
+---
+
+# 5. 🧩 Core Features
+
+---
+
+## 5.1 👨‍🏫 Admin Portal (Teacher)
+
+### 🔐 Authentication
+
+* Email + Password login
+* JWT-based session
+
+---
+
+### 📝 Test Management
+
+* Create Test (Name, Date)
+* View all tests
+
+---
+
+### 👥 Student Management
+
+#### Add Students:
+
+* Manual entry (Name + Roll No)
+* Bulk upload (CSV/Excel)
+
+---
+
+### 📸 Answer Sheet Upload
+
+* Mobile-first capture
+* Camera + Gallery support
+* Multiple images per student
+
+---
+
+### ✏️ Marks Entry
+
+* Input marks per student
+* Editable before final save
+
+---
+
+### 👀 Preview & Edit
+
+* Review all data before submission
+
+---
+
+### 🏆 Leaderboard
+
+* Auto top 3 students
+* Rank calculation (with tie handling)
+
+---
+
+### 📊 Analytics
+
+* Average marks
+* Highest / Lowest
+* Total students
+
+---
+
+### 🔗 Result Link Generation
+
+* Unique token-based link per student
+
+---
+
+### 📤 Sharing Options
+
+* Copy all links
+* WhatsApp sharing (manual)
+* Bulk message format
+
+---
+
+---
+
+## 5.2 👨‍🎓 Student Interface
+
+---
+
+### 🌍 Public Result Page
+
+#### URL:
+
+`/test/:testId`
+
+#### Features:
+
+* Leaderboard (Top 3)
+* Full result table (Name, Roll No, Marks)
+* Search functionality
+* Analytics (avg, highest, lowest)
+
+#### Restrictions:
+
+* No email
+* No phone number
+* No answer sheets
+
+---
+
+### 🔒 Private Student Portal
+
+#### URL:
+
+`/result/:token`
+
+#### Features:
+
+* Personal result (marks, rank)
+* Profile section (Name, Roll No, Email)
+* Answer sheet viewing (images)
+* PDF download (generated dynamically)
+
+---
+
+### 🔐 Security:
+
+* Token-based access (unguessable)
+* Optional roll number verification
+
+---
+
+# 6. 🔄 User Flow
+
+---
+
+## 👨‍🏫 Teacher Flow:
+
+1. Login
+2. Create Test
+3. Add Students (manual/bulk)
+4. Upload answer sheets (mobile)
+5. Enter marks
+6. Preview & save
+7. Share result links
+
+---
+
+## 👨‍🎓 Student Flow:
+
+### Public:
+
+* Open test page → view leaderboard + results
+
+### Private:
+
+* Open personal link → view detailed result + answer sheet
+
+---
+
+# 7. 🧠 System Design
+
+---
+
+## Entities:
+
+### Test
+
+* id
+* name
+* date
+
+### Student
+
+* id
+* name
+* rollNo
+
+### Result
+
+* studentId
+* testId
+* marks
+* token
+
+### AnswerSheet
+
+* resultId
+* images[]
+
+---
+
+# 8. 🔐 Security Design
+
+---
+
+### Admin:
+
+* JWT authentication
+* Protected routes
+
+---
+
+### Public:
+
+* Filtered API response
+* No sensitive data
+
+---
+
+### Private:
+
+* Token-based access
+* Random unique token
+
+---
+
+# 9. 📱 Mobile-First Design
+
+---
+
+### Key Points:
+
+* Camera integration for uploads
+* Responsive UI
+* No dependency on PC
+* Touch-friendly interface
+
+---
+
+# 10. ⚙️ Tech Stack
+
+---
+
+### Frontend:
+
+* React.js
+* Tailwind CSS
+
+---
+
+### Backend:
+
+* Node.js + Express
+
+---
+
+### Database:
+
+* MongoDB
+
+---
+
+### File Handling:
+
+* Multer (image upload)
+
+---
+
+### PDF Generation:
+
+* Server-side (on demand)
+
+---
+
+# 11. 🚀 Deployment Plan
+
+---
+
+### Frontend:
+
+* Vercel / Netlify
+
+---
+
+### Backend:
+
+* Render / Railway / VPS
+
+---
+
+### Database:
+
+* MongoDB Atlas
+
+---
+
+### File Storage:
+
+* Local (initial)
+* Later: Cloud (AWS S3 / Cloudinary)
+
+---
+
+# 12. ⚠️ Edge Cases
+
+* Duplicate roll numbers
+* Missing marks
+* Large file uploads
+* Same marks (tie)
+* Invalid token access
+* Student not found
+
+---
+
+# 13. 🔮 Future Enhancements
+
+* AI-based marks extraction from images
+* WhatsApp API integration
+* Student login system
+* Performance tracking across tests
+* Notifications system
+
+---
+
+# 14. 🧨 Key Differentiator
+
+This is not just a data entry system.
+
+It is a **workflow automation tool** that:
+
+* Reduces teacher effort
+* Improves student access
+* Eliminates manual processes
+
+---
+
+# 15. 📌 One-Line Summary
+
+“A mobile-first system where teachers upload results once and students access them instantly with zero friction.”
+
+---
+
+# ✅ END OF PRD

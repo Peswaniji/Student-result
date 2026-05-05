@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: student-result-system
+    runtime: node
+    region: singapore
+    plan: starter
+    
+    buildCommand: >
+      cd backend && npm install &&
+      cd ../frontend && npm install && npm run build &&
+      cd ../backend && cp -r ../frontend/dist ../frontend/dist
+    
+    startCommand: "cd backend && npm start"
+    
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: "${RENDER_EXTERNAL_URL}"
+    
+    buildFilter:
+      paths:
+        - backend/**
+        - frontend/**
+        - package.json
+      ignoredPaths: []
