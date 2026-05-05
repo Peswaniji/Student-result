@@ -68,6 +68,7 @@ export default function PublicTestPage() {
   }, [state.payload, state.search])
 
   const analytics = state.payload?.analytics
+  const maxMarks = Number(analytics?.maxMarks || 100)
   const leaderboard = state.payload?.leaderboard || []
   const top3 = leaderboard.slice(0, 3)
 
@@ -163,11 +164,11 @@ export default function PublicTestPage() {
               </div>
               <div className="stat-card">
                 <div className="stat-label">Highest</div>
-                <div className="stat-value green">{analytics.highestMarks}</div>
+                <div className="stat-value green">{analytics.highestMarks}/{maxMarks}</div>
               </div>
               <div className="stat-card">
                 <div className="stat-label">Lowest</div>
-                <div className="stat-value cyan">{analytics.lowestMarks}</div>
+                <div className="stat-value cyan">{analytics.lowestMarks}/{maxMarks}</div>
               </div>
             </div>
           </div>
@@ -186,7 +187,7 @@ export default function PublicTestPage() {
                       <div className={`podium-item ${podiumClass}`} key={r.rollNo}>
                         <div className="podium-avatar">{r.name?.[0]?.toUpperCase()}</div>
                         <div className="podium-name">{r.name}</div>
-                        <div className="podium-marks">{r.marks} pts</div>
+                        <div className="podium-marks">{r.marks}/{maxMarks}</div>
                         <div className="podium-bar">#{r.rank}</div>
                       </div>
                     )
@@ -228,9 +229,9 @@ export default function PublicTestPage() {
                       <div className="rank-row-roll">{r.rollNo}</div>
                     </div>
                     <div>
-                      <div className="rank-row-marks">{r.marks}</div>
+                      <div className="rank-row-marks">{r.marks}/{maxMarks}</div>
                       <div className="progress-bar" style={{ width: 60 }}>
-                        <div className="progress-fill" style={{ width: `${r.marks}%` }} />
+                        <div className="progress-fill" style={{ width: `${Math.min((Number(r.marks) / maxMarks) * 100, 100)}%` }} />
                       </div>
                     </div>
                   </div>
@@ -272,7 +273,7 @@ export default function PublicTestPage() {
                           <div className="rank-row-name">{name}</div>
                           <div className="rank-row-roll">{rollNo}</div>
                         </div>
-                        <div className="rank-row-marks">{marks}</div>
+                        <div className="rank-row-marks">{marks}/{maxMarks}</div>
                       </div>
                     )
                   })}

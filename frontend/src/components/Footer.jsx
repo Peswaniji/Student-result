@@ -3,7 +3,7 @@ export default function Footer() {
     <footer style={{
       background: 'linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%)',
       borderTop: '1px solid var(--border-1)',
-      padding: '40px 20px',
+      padding: '28px 16px',
       marginTop: 'auto'
     }}>
       <div style={{
@@ -11,7 +11,7 @@ export default function Footer() {
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: 20,
+        gap: 14,
         alignItems: 'center'
       }}>
         {/* Developer Info */}
@@ -19,10 +19,10 @@ export default function Footer() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 12
+          gap: 8
         }}>
           <div style={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             color: 'var(--ink)',
             letterSpacing: '0.5px'
@@ -31,8 +31,8 @@ export default function Footer() {
           </div>
           <div style={{
             display: 'flex',
-            gap: 16,
-            fontSize: 12,
+            gap: 12,
+            fontSize: 11,
             color: 'var(--ink-2)',
             flexWrap: 'wrap',
             justifyContent: 'center'
@@ -85,14 +85,14 @@ export default function Footer() {
 
         {/* Divider */}
         <div style={{
-          width: 40,
+          width: 32,
           height: 1,
           background: 'var(--border-1)'
         }} />
 
         {/* Copyright */}
         <div style={{
-          fontSize: 11,
+          fontSize: 10,
           color: 'var(--ink-3)',
           textAlign: 'center',
           letterSpacing: '0.3px'

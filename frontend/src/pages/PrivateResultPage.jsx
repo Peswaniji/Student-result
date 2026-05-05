@@ -24,9 +24,10 @@ export default function PrivateResultPage() {
   }, [token])
 
   const r = state.payload
-  const percentage = r ? Math.round((r.marks / 100) * 100) : 0
+  const maxMarks = r ? Number(r.maxMarks || r.test?.maxMarks || 100) : 100
+  const percentage = r ? Math.round((r.marks / maxMarks) * 100) : 0
   const grade = r
-    ? r.marks >= 90 ? 'A+' : r.marks >= 80 ? 'A' : r.marks >= 70 ? 'B' : r.marks >= 60 ? 'C' : r.marks >= 40 ? 'D' : 'F'
+    ? percentage >= 90 ? 'A+' : percentage >= 80 ? 'A' : percentage >= 70 ? 'B' : percentage >= 60 ? 'C' : percentage >= 40 ? 'D' : 'F'
     : ''
   const gradeColor = grade === 'A+' || grade === 'A' ? 'var(--green)'
     : grade === 'B' ? 'var(--blue)'
@@ -155,7 +156,7 @@ export default function PrivateResultPage() {
 
               {/* Big score */}
               <div className="private-score-value">{r.marks}</div>
-              <div className="private-score-label">out of 100</div>
+              <div className="private-score-label">out of {maxMarks}</div>
 
               {/* Grade badge */}
               <div style={{ marginTop: 12, marginBottom: 8 }}>
@@ -178,7 +179,7 @@ export default function PrivateResultPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 11, color: 'var(--ink-3)' }}>
                   <span>0</span>
                   <span>{percentage}%</span>
-                  <span>100</span>
+                  <span>{maxMarks}</span>
                 </div>
               </div>
             </div>
@@ -192,7 +193,7 @@ export default function PrivateResultPage() {
                 {[
                   ['📋 Test', r.test?.name],
                   ['📅 Date', r.test?.date?.slice(0, 10)],
-                  ['📊 Marks', `${r.marks} / 100`],
+                  ['📊 Marks', `${r.marks} / ${maxMarks}`],
                   ['🏅 Rank', `#${r.rank}`],
                   ['📈 Grade', grade],
                 ].map(([key, val]) => (

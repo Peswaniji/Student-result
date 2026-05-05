@@ -61,7 +61,7 @@ export default function AdminDashboard() {
   const [busy, setBusy] = useState('')
 
   // Test form state
-  const [testForm, setTestForm] = useState({ name: '', date: new Date().toISOString().slice(0, 10) })
+  const [testForm, setTestForm] = useState({ name: '', date: new Date().toISOString().slice(0, 10), maxMarks: '100' })
   const [editingTestId, setEditingTestId] = useState(null)
 
   // Student form state
@@ -151,8 +151,14 @@ export default function AdminDashboard() {
   // ==================== TEST FUNCTIONS ====================
   async function createOrUpdateTest(e) {
     e.preventDefault()
-    if (!testForm.name || !testForm.date) {
+    if (!testForm.name || !testForm.date || testForm.maxMarks === '') {
       showNotice('Please fill all fields', 'error')
+      return
+    }
+
+    const parsedMaxMarks = Number(testForm.maxMarks)
+    if (Number.isNaN(parsedMaxMarks) || parsedMaxMarks <= 0) {
+      showNotice('Max marks must be greater than 0', 'error')
       return
     }
 
@@ -166,14 +172,14 @@ export default function AdminDashboard() {
         setBusy('test')
         try {
           if (editingTestId) {
-            await api.put(`/tests/${editingTestId}`, testForm)
+            await api.put(`/tests/${editingTestId}`, { ...testForm, maxMarks: parsedMaxMarks })
             showNotice('Test updated')
             setEditingTestId(null)
           } else {
-            await api.post('/tests', testForm)
+            await api.post('/tests', { ...testForm, maxMarks: parsedMaxMarks })
             showNotice('Test created')
           }
-          setTestForm({ name: '', date: new Date().toISOString().slice(0, 10) })
+          setTestForm({ name: '', date: new Date().toISOString().slice(0, 10), maxMarks: '100' })
           await refreshLists()
         } catch (err) { showNotice(getErrorMessage(err), 'error') }
         finally { setBusy('') }
@@ -183,7 +189,7 @@ export default function AdminDashboard() {
   }
 
   function editTest(test) {
-    setTestForm({ name: test.name, date: test.date?.slice(0, 10) })
+    setTestForm({ name: test.name, date: test.date?.slice(0, 10), maxMarks: String(test.maxMarks ?? 100) })
     setEditingTestId(test._id)
   }
 
@@ -208,7 +214,7 @@ export default function AdminDashboard() {
 
   function cancelEditTest() {
     setEditingTestId(null)
-    setTestForm({ name: '', date: new Date().toISOString().slice(0, 10) })
+    setTestForm({ name: '', date: new Date().toISOString().slice(0, 10), maxMarks: '100' })
   }
 
   // ==================== STUDENT FUNCTIONS ====================
@@ -299,6 +305,12 @@ export default function AdminDashboard() {
     e.preventDefault()
     if (!resultForm.studentId || !resultForm.testId || resultForm.marks === '') {
       showNotice('Please fill all fields', 'error')
+      return
+    }
+
+    const parsedMarks = Number(resultForm.marks)
+    if (Number.isNaN(parsedMarks) || parsedMarks < 0 || parsedMarks > selectedTestMaxMarks) {
+      showNotice(`Marks must be between 0 and ${selectedTestMaxMarks}`, 'error')
       return
     }
 
@@ -471,6 +483,9 @@ export default function AdminDashboard() {
     return tests.find(t => t._id === testId) || null
   }
 
+  const selectedTest = getTestById(resultForm.testId)
+  const selectedTestMaxMarks = Number(selectedTest?.maxMarks || 100)
+
   async function loadOverview() {
     if (!overviewTestId) return
     setBusy('overview')
@@ -597,6 +612,18 @@ export default function AdminDashboard() {
                     required
                   />
                 </div>
+                <div className="field">
+                  <label>Max Marks</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    placeholder="100"
+                    value={testForm.maxMarks}
+                    onChange={e => setTestForm({ ...testForm, maxMarks: e.target.value })}
+                    required
+                  />
+                </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button className="btn btn-primary btn-full" type="submit" disabled={busy === 'test'} style={{ flex: 1 }}>
                     {busy === 'test' ? 'Saving...' : editingTestId ? '✅ Update' : '+ Create'}
@@ -636,7 +663,7 @@ export default function AdminDashboard() {
                         }}>📋</div>
                         <div className="row-item-main">
                           <div className="row-item-name">{t.name}</div>
-                          <div className="row-item-sub">{t.date?.slice(0, 10)} · ID: {t._id.slice(-6)}</div>
+                          <div className="row-item-sub">{t.date?.slice(0, 10)} · Max: {t.maxMarks ?? 100} · ID: {t._id.slice(-6)}</div>
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
@@ -847,12 +874,13 @@ export default function AdminDashboard() {
                   </select>
                 </div>
                 <div className="field">
-                  <label>Marks (out of 100)</label>
+                  <label>Marks (out of {selectedTestMaxMarks})</label>
                   <input
                     type="number"
                     placeholder="85"
                     min="0"
-                    max="100"
+                    max={selectedTestMaxMarks}
+                    step="0.01"
                     value={resultForm.marks}
                     onChange={e => setResultForm({ ...resultForm, marks: e.target.value })}
                     required
@@ -1135,7 +1163,7 @@ export default function AdminDashboard() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 12 }}>
                           <div className="row-item-main" style={{ flex: 1 }}>
                             <div className="row-item-name">{s?.name || 'Unknown'} <span style={{ color: 'var(--ink-3)', fontSize: 12 }}>{s?.rollNo ? `(${s.rollNo})` : ''}</span></div>
-                            <div className="row-item-sub">Test: {t?.name || 'Unknown'} · Marks: {p.marks}</div>
+                            <div className="row-item-sub">Test: {t?.name || 'Unknown'} · Marks: {p.marks}/{t?.maxMarks ?? 100}</div>
                           </div>
                           <div style={{ display: 'flex', gap: 8 }}>
                             <button className="btn btn-ghost btn-sm" onClick={() => {
@@ -1203,7 +1231,7 @@ export default function AdminDashboard() {
                               {isShared ? 'Shared' : 'Not shared'}
                             </span>
                           </div>
-                          <div className="row-item-sub">{testName} · {r.marks} marks</div>
+                          <div className="row-item-sub">{testName} · {r.marks}/{testObj?.maxMarks ?? tst?.maxMarks ?? 100}</div>
                         </div>
                         <div style={{ display: 'flex', gap: 8, flexShrink: 0, alignItems: 'center' }}>
                           <button
@@ -1269,7 +1297,7 @@ export default function AdminDashboard() {
                     <div className="row-item" key={r._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                       <div className="row-item-main" style={{ flex: 1 }}>
                         <div className="row-item-name">{studentName}</div>
-                        <div className="row-item-sub">Roll: {rollNo} · {testName} · {r.marks} marks</div>
+                        <div className="row-item-sub">Roll: {rollNo} · {testName} · {r.marks}/{testObj?.maxMarks ?? tst?.maxMarks ?? 100}</div>
                         <div style={{ fontSize: 11, color: 'var(--ink-3)', wordBreak: 'break-all', marginTop: 6 }}>
                           {privateUrl}
                         </div>
