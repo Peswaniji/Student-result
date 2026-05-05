@@ -85,6 +85,7 @@ export default function AdminDashboard() {
   // Upload form state
   const [uploadForm, setUploadForm] = useState({ resultId: '' })
   const [uploadFiles, setUploadFiles] = useState([])
+  const [showUploadMenu, setShowUploadMenu] = useState(false)
 
   // Overview state
   const [overviewTestId, setOverviewTestId] = useState('')
@@ -859,30 +860,191 @@ export default function AdminDashboard() {
                 </div>
                 <div style={{ marginTop: 12 }}>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Answer Sheets (optional)</label>
-                  <div className={`file-zone ${uploadFiles.length > 0 ? 'drag' : ''}`}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={e => {
-                        const newFiles = Array.from(e.target.files || []);
-                        if (newFiles.length === 0) return;
-                        setUploadFiles(prev => [...prev, ...newFiles]);
+                  
+                  {/* Hidden file inputs */}
+                  <input
+                    type="file"
+                    id="camera-input"
+                    accept="image/*"
+                    capture="environment"
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setUploadFiles(prev => [...prev, file]);
+                        setShowUploadMenu(false);
                         e.target.value = null;
-                      }}
-                    />
-                    <div className="file-zone-icon">📸</div>
-                    {uploadFiles.length > 0 ? (
-                      <div className="file-zone-text" style={{ color: 'var(--green)' }}>
-                        {uploadFiles.length} image{uploadFiles.length > 1 ? 's' : ''} selected
-                      </div>
-                    ) : (
-                      <>
-                        <div className="file-zone-text">Attach answer sheet images here</div>
-                        <div className="file-zone-sub">Optional: multiple images</div>
-                      </>
-                    )}
+                      }
+                    }}
+                  />
+                  <input
+                    type="file"
+                    id="gallery-input"
+                    accept="image/*"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const newFiles = Array.from(e.target.files || []);
+                      if (newFiles.length > 0) {
+                        setUploadFiles(prev => [...prev, ...newFiles]);
+                        setShowUploadMenu(false);
+                        e.target.value = null;
+                      }
+                    }}
+                  />
+
+                  {/* Upload Zone / Button */}
+                  <div
+                    onClick={() => setShowUploadMenu(!showUploadMenu)}
+                    style={{
+                      padding: '24px 20px',
+                      border: '2px dashed var(--border-2)',
+                      borderRadius: 12,
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      background: 'var(--surface-2)',
+                      transition: 'all 0.2s ease',
+                      marginBottom: 12
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = 'var(--blue)';
+                      e.currentTarget.style.background = 'var(--surface)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'var(--border-2)';
+                      e.currentTarget.style.background = 'var(--surface-2)';
+                    }}
+                  >
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>
+                      {uploadFiles.length > 0 ? '✓' : '📸'}
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>
+                      {uploadFiles.length > 0 ? `${uploadFiles.length} image${uploadFiles.length > 1 ? 's' : ''} added` : '+ Add Photos'}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>
+                      {uploadFiles.length > 0 ? 'Click to add more' : 'Tap to upload answer sheets'}
+                    </div>
                   </div>
+
+                  {/* Popup Menu */}
+                  {showUploadMenu && (
+                    <div style={{
+                      background: 'var(--surface)',
+                      border: '1px solid var(--border-1)',
+                      borderRadius: 10,
+                      overflow: 'hidden',
+                      marginBottom: 12,
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          document.getElementById('camera-input').click();
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'none',
+                          border: 'none',
+                          textAlign: 'left',
+                          fontSize: 14,
+                          color: 'var(--ink)',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid var(--border-1)',
+                          transition: 'background 0.2s ease'
+                        }}
+                        onMouseEnter={e => e.target.style.background = 'var(--surface-2)'}
+                        onMouseLeave={e => e.target.style.background = 'none'}
+                      >
+                        📷 Take Photo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          document.getElementById('gallery-input').click();
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'none',
+                          border: 'none',
+                          textAlign: 'left',
+                          fontSize: 14,
+                          color: 'var(--ink)',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s ease'
+                        }}
+                        onMouseEnter={e => e.target.style.background = 'var(--surface-2)'}
+                        onMouseLeave={e => e.target.style.background = 'none'}
+                      >
+                        🖼️ Upload Photo
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Thumbnails Preview */}
+                  {uploadFiles.length > 0 && (
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))',
+                      gap: 10,
+                      padding: 12,
+                      background: 'var(--surface-2)',
+                      borderRadius: 8,
+                      marginBottom: 12
+                    }}>
+                      {uploadFiles.map((file, idx) => (
+                        <div key={idx} style={{ position: 'relative' }}>
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Sheet ${idx + 1}`}
+                            style={{
+                              width: '100%',
+                              height: 70,
+                              objectFit: 'cover',
+                              borderRadius: 6,
+                              border: '1px solid var(--border-1)'
+                            }}
+                          />
+                          <div style={{
+                            position: 'absolute',
+                            top: 2,
+                            right: 2,
+                            background: 'rgba(0,0,0,0.6)',
+                            color: '#fff',
+                            fontSize: 10,
+                            padding: '2px 4px',
+                            borderRadius: 3
+                          }}>
+                            #{idx + 1}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setUploadFiles(prev => prev.filter((_, i) => i !== idx))}
+                            style={{
+                              position: 'absolute',
+                              top: -6,
+                              right: -6,
+                              background: 'var(--red)',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: 22,
+                              height: 22,
+                              fontSize: 11,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 700
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                   <button className="btn btn-primary btn-full" type="submit" disabled={busy === 'result'} style={{ flex: 1 }}>
