@@ -91,6 +91,11 @@ export default function AdminDashboard() {
   const [overviewTestId, setOverviewTestId] = useState('')
   const [overviewData, setOverviewData] = useState(null)
 
+  const [studentSearch, setStudentSearch] = useState('')
+  const [resultSearch, setResultSearch] = useState('')
+  const [resultSubjectFilter, setResultSubjectFilter] = useState('')
+  const [resultDateFilter, setResultDateFilter] = useState('')
+
   // Confirmation dialog state
   const [confirmDialog, setConfirmDialog] = useState(null)
 
@@ -452,8 +457,9 @@ export default function AdminDashboard() {
 
   function openShareLink(result) {
     const student = result.studentId && typeof result.studentId === 'object' ? result.studentId : students.find(s => s._id === result.studentId)
+    const test = result.testId && typeof result.testId === 'object' ? result.testId : tests.find(t => t._id === result.testId)
     const tok = result.token || result._id
-    const url = buildWhatsappHref(tok, student)
+    const url = buildWhatsappHref(tok, student, test)
     const opened = window.open(url, '_blank', 'noopener,noreferrer')
     if (!opened) {
       showNotice('Popup blocked. Allow popups and try again.', 'error')
@@ -486,6 +492,43 @@ export default function AdminDashboard() {
   const selectedTest = getTestById(resultForm.testId)
   const selectedTestMaxMarks = Number(selectedTest?.maxMarks || 100)
 
+  function formatDateLabel(value) {
+    if (!value) return ''
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return ''
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  }
+
+  const filteredStudents = students.filter(student => {
+    const term = studentSearch.trim().toLowerCase()
+    if (!term) return true
+    return [student.name, student.rollNo, student.phone]
+      .filter(Boolean)
+      .some(value => String(value).toLowerCase().includes(term))
+  })
+
+  const filteredRecentResults = results.filter(result => {
+    const studentObj = result.studentId && typeof result.studentId === 'object' ? result.studentId : null
+    const testObj = result.testId && typeof result.testId === 'object' ? result.testId : null
+    const studentId = studentObj ? studentObj._id : result.studentId
+    const testId = testObj ? testObj._id : result.testId
+    const stu = students.find(s => s._id === studentId)
+    const tst = tests.find(t => t._id === testId)
+    const studentName = stu?.name || studentObj?.name || 'Unknown'
+    const rollNo = stu?.rollNo || studentObj?.rollNo || '—'
+    const testName = tst?.name || testObj?.name || 'Unknown'
+    const testDate = (tst?.date || testObj?.date || '').slice(0, 10)
+    const searchTerm = resultSearch.trim().toLowerCase()
+    const subjectTerm = resultSubjectFilter.trim().toLowerCase()
+    const dateTerm = resultDateFilter.trim()
+
+    const matchesSearch = !searchTerm || [studentName, rollNo, testName, String(result.marks), String(testDate)]
+      .some(value => String(value).toLowerCase().includes(searchTerm))
+    const matchesSubject = !subjectTerm || testName.toLowerCase().includes(subjectTerm)
+    const matchesDate = !dateTerm || testDate === dateTerm
+    return matchesSearch && matchesSubject && matchesDate
+  })
+
   async function loadOverview() {
     if (!overviewTestId) return
     setBusy('overview')
@@ -503,12 +546,15 @@ export default function AdminDashboard() {
     showNotice('Link copied!')
   }
 
-  function buildWhatsappHref(tok, student) {
+  function buildWhatsappHref(tok, student, test) {
     const url = `${window.location.origin}/result/${tok}`
     const publicUrl = `${window.location.origin}/public`
     const name = student?.name || 'Student'
     const congratMsg = student?.rank === 1 ? '\n\n🎉 Congratulations! You topped the test!' : ''
-    const msg = `${SCHOOL_NAME}\n\nHi ${name},\nYour result is ready.${congratMsg}\n\nView your marks & answer sheets:\n${url}\n\nLeaderboard:\n${publicUrl}`
+    const subject = test?.name || 'test'
+    const examDate = formatDateLabel(test?.date)
+    const examLine = examDate ? ` held on ${examDate}` : ''
+    const msg = `${SCHOOL_NAME}\n\nHi ${name},\nYour ${subject} test${examLine} result is ready.${congratMsg}\n\nView your marks & answer sheets:\n${url}\n\nLeaderboard:\n${publicUrl}`
     if (student?.phone) {
       const phone = student.phone.replace(/\D/g, '')
       return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
@@ -787,16 +833,29 @@ export default function AdminDashboard() {
 
             <div>
               <div className="section-header">
-                <div className="section-title">All Students ({students.length})</div>
+                <div className="section-title">All Students ({filteredStudents.length}/{students.length})</div>
+              </div>
+              <div className="search-wrap" style={{ marginBottom: 14 }}>
+                <span className="search-icon">🔍</span>
+                <input
+                  placeholder="Search student name, roll no, phone..."
+                  value={studentSearch}
+                  onChange={e => setStudentSearch(e.target.value)}
+                />
               </div>
               {students.length === 0 ? (
                 <div className="empty">
                   <div className="empty-icon">👨‍🎓</div>
                   No students yet
                 </div>
+              ) : filteredStudents.length === 0 ? (
+                <div className="empty">
+                  <div className="empty-icon">🔍</div>
+                  No students match your search
+                </div>
               ) : (
                 <div className="stack stack-8">
-                  {students.map((s) => (
+                  {filteredStudents.map((s) => (
                     <div className="row-item" key={s._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
                         <div style={{
@@ -1114,7 +1173,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <a
-                    href={buildWhatsappHref(generatedToken, generatedStudent)}
+                    href={buildWhatsappHref(generatedToken, generatedStudent, selectedTest)}
                     target="_blank"
                     rel="noreferrer"
                     style={{
@@ -1199,16 +1258,64 @@ export default function AdminDashboard() {
 
             <div>
               <div className="section-header">
-                <div className="section-title">Recent Results ({results.length})</div>
+                <div className="section-title">All Results ({filteredRecentResults.length}/{results.length})</div>
+              </div>
+              <div className="stack stack-12" style={{ marginBottom: 14 }}>
+                <div className="search-wrap">
+                  <span className="search-icon">🔍</span>
+                  <input
+                    placeholder="Search student, roll, subject, marks..."
+                    value={resultSearch}
+                    onChange={e => setResultSearch(e.target.value)}
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
+                  <div className="field" style={{ margin: 0 }}>
+                    <label>Subject</label>
+                    <select value={resultSubjectFilter} onChange={e => setResultSubjectFilter(e.target.value)}>
+                      <option value="">All subjects</option>
+                      {tests.map(t => (
+                        <option key={t._id} value={t.name}>{t.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="field" style={{ margin: 0 }}>
+                    <label>Exam Date</label>
+                    <input
+                      type="date"
+                      value={resultDateFilter}
+                      onChange={e => setResultDateFilter(e.target.value)}
+                    />
+                  </div>
+                  <div className="field" style={{ margin: 0, justifyContent: 'end' }}>
+                    <label>&nbsp;</label>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-full"
+                      onClick={() => {
+                        setResultSearch('')
+                        setResultSubjectFilter('')
+                        setResultDateFilter('')
+                      }}
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                </div>
               </div>
               {results.length === 0 ? (
                 <div className="empty">
                   <div className="empty-icon">📊</div>
                   No results yet
                 </div>
+              ) : filteredRecentResults.length === 0 ? (
+                <div className="empty">
+                  <div className="empty-icon">🔍</div>
+                  No results match your filters
+                </div>
               ) : (
                 <div className="rank-table">
-                  {results.slice(0, 10).map((r) => {
+                  {filteredRecentResults.map((r) => {
                     const studentObj = r.studentId && typeof r.studentId === 'object' ? r.studentId : null
                     const testObj = r.testId && typeof r.testId === 'object' ? r.testId : null
 
