@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api, clearAuthToken, getAuthToken, getErrorMessage } from '../services/api'
 import Footer from '../components/Footer'
@@ -86,6 +86,7 @@ export default function AdminDashboard() {
   const [uploadForm, setUploadForm] = useState({ resultId: '' })
   const [uploadFiles, setUploadFiles] = useState([])
   const [showUploadMenu, setShowUploadMenu] = useState(false)
+  const resultFormRef = useRef(null)
 
   // Overview state
   const [overviewTestId, setOverviewTestId] = useState('')
@@ -349,10 +350,16 @@ export default function AdminDashboard() {
   }
 
   function editResult(result) {
-    const stu = students.find(s => s._id === result.studentId)
-    setResultForm({ studentId: result.studentId, testId: result.testId, marks: result.marks.toString() })
+    const studentId = result.studentId && typeof result.studentId === 'object' ? result.studentId._id : result.studentId
+    const testId = result.testId && typeof result.testId === 'object' ? result.testId._id : result.testId
+    const stu = students.find(s => s._id === studentId) || (result.studentId && typeof result.studentId === 'object' ? result.studentId : null)
+    setResultForm({ studentId, testId, marks: result.marks.toString() })
     setGeneratedStudent(stu || null)
     setEditingResultId(result._id)
+    setActiveTab(2)
+    requestAnimationFrame(() => {
+      resultFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
   function deleteResult(result) {
@@ -636,7 +643,7 @@ export default function AdminDashboard() {
         {/* TESTS TAB */}
         {activeTab === 0 && (
           <div className="stack stack-16 animate-fade-up">
-            <div className="card">
+            <div className="card" ref={resultFormRef}>
               <div className="card-title">{editingTestId ? '✏️ Edit Test' : 'Create New Test'}</div>
               <div className="card-sub">{editingTestId ? 'Update test details' : 'Add a test name and date'}</div>
               <form className="stack stack-12" onSubmit={createOrUpdateTest}>
