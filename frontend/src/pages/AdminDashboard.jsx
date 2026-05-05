@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api, clearAuthToken, getAuthToken, getErrorMessage } from '../services/api'
+import Footer from '../components/Footer'
 
 const TABS = ['Tests', 'Students', 'Results', 'Private Links', 'Overview']
 const SCHOOL_NAME = 'Vivekanand Sanskar Senior Secondary School Gangapur City'
@@ -1205,6 +1206,7 @@ export default function AdminDashboard() {
         )}
 
       </div>
+      <Footer />
     </div>
   )
 }

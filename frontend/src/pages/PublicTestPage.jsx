@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { api, getErrorMessage } from '../services/api'
+import Footer from '../components/Footer'
 
 export default function PublicTestPage() {
   const { testId: routeTestId } = useParams()
@@ -82,10 +83,22 @@ export default function PublicTestPage() {
       </nav>
 
       {/* School Header */}
-      <div style={{ padding: '16px 20px 0', textAlign: 'center', borderBottom: '1px solid var(--border-1)', paddingBottom: 16, marginBottom: 16 }}>
-        <img src="/logo.png" alt="School Logo" style={{ height: 50, marginBottom: 8 }} />
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>
-          Vivekanand Sanskar Senior Secondary School Gangapur City
+      <div style={{
+        padding: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        borderBottom: '1px solid var(--border-1)',
+        marginBottom: 24
+      }}>
+        <img src="/logo.png" alt="School Logo" style={{ height: 70, minWidth: 70, objectFit: 'contain' }} />
+        <div style={{ flex: 1, textAlign: 'left' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--ink)', lineHeight: 1.3 }}>
+            Vivekanand Sanskar Senior Secondary School
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 4 }}>
+            Gangapur City
+          </div>
         </div>
       </div>
 
@@ -269,6 +282,7 @@ export default function PublicTestPage() {
           )}
         </div>
       )}
+      <Footer />
     </div>
   )
 }

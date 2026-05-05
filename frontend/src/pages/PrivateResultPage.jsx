@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { api, fileBaseUrl, getErrorMessage } from '../services/api'
 import { jsPDF } from 'jspdf'
+import Footer from '../components/Footer'
 
 export default function PrivateResultPage() {
   const { token } = useParams()
@@ -112,10 +113,22 @@ export default function PrivateResultPage() {
       {r && (
         <div className="animate-fade-in">
           {/* School Header */}
-          <div style={{ padding: '20px 20px 0', textAlign: 'center' }}>
-            <img src="/logo.png" alt="School Logo" style={{ height: 60, marginBottom: 8 }} />
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, color: 'var(--ink)', marginBottom: 16 }}>
-              Vivekanand Sanskar Senior Secondary School Gangapur City
+          <div style={{
+            padding: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            borderBottom: '1px solid var(--border-1)',
+            marginBottom: 24
+          }}>
+            <img src="/logo.png" alt="School Logo" style={{ height: 70, minWidth: 70, objectFit: 'contain' }} />
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--ink)', lineHeight: 1.3 }}>
+                Vivekanand Sanskar Senior Secondary School
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 4 }}>
+                Gangapur City
+              </div>
             </div>
           </div>
 
@@ -318,6 +331,7 @@ export default function PrivateResultPage() {
           </button>
         </div>
       )}
+      <Footer />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import Footer from '../components/Footer'
 
 export default function LandingPage() {
   return (
@@ -131,6 +132,7 @@ export default function LandingPage() {
           Built with MERN · No student login required · Mobile-first
         </p>
       </div>
+      <Footer />
     </div>
   )
 }
