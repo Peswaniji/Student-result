@@ -81,6 +81,14 @@ export default function PublicTestPage() {
         <BackButtonPublic />
       </nav>
 
+      {/* School Header */}
+      <div style={{ padding: '16px 20px 0', textAlign: 'center', borderBottom: '1px solid var(--border-1)', paddingBottom: 16, marginBottom: 16 }}>
+        <img src="/logo.png" alt="School Logo" style={{ height: 50, marginBottom: 8 }} />
+        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>
+          Vivekanand Sanskar Senior Secondary School Gangapur City
+        </div>
+      </div>
+
       {/* Header */}
       <div style={{ padding: '16px 20px 0' }}>
         <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
