@@ -7,14 +7,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: 'terser',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'axios', 'react-router-dom']
-        }
-      }
-    }
+    minify: 'terser'
   },
   server: {
     proxy: {
