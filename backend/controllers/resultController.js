@@ -93,6 +93,7 @@ exports.getPublicResults = async (req, res) => {
         // Fetch and sort all results directly from DB
         const results = await Result.find({ testId })
             .populate('studentId', 'name rollNo')
+            .populate('testId', 'name date maxMarks')
             .sort({ marks: -1 })
             .lean();
 
@@ -101,22 +102,23 @@ exports.getPublicResults = async (req, res) => {
         }
 
         let totalMarks = 0;
-        let currentRank = 1;
+        let currentRank = 0;
+        let previousMarks = null;
 
-        // O(N) single-pass rank calculation and data formatting
-        const processedResults = results.map((r, index) => {
+        // O(N) single-pass dense ranking by unique mark groups
+        const processedResults = results.map((r) => {
             totalMarks += r.marks;
 
-            // Standard Rank logic (1, 1, 3)
-            // Rank only updates to current index + 1 if marks are strictly lower than previous
-            if (index > 0 && r.marks < results[index - 1].marks) {
-                currentRank = index + 1;
+            if (previousMarks === null || r.marks < previousMarks) {
+                currentRank += 1;
+                previousMarks = r.marks;
             }
 
             return {
                 name: r.studentId ? r.studentId.name : 'Unknown',
                 rollNo: r.studentId ? r.studentId.rollNo : 'Unknown',
                 marks: r.marks,
+                test: r.testId,
                 rank: currentRank
             };
         });
@@ -167,13 +169,12 @@ exports.getPrivateResult = async (req, res) => {
         }
 
         // 2. O(1) query to find exact standard rank perfectly consistent with public API
-        // Rank = (Number of students with strictly higher marks) + 1
-        const higherMarksCount = await Result.countDocuments({
+        // Dense rank = (number of distinct higher marks) + 1
+        const higherMarks = await Result.distinct('marks', {
             testId: result.testId._id,
             marks: { $gt: result.marks }
         });
-        
-        const studentRank = higherMarksCount + 1;
+        const studentRank = higherMarks.length + 1;
 
         const responseData = {
             student: result.studentId,

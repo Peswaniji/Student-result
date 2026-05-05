@@ -818,6 +818,11 @@ img { max-width: 100%; display: block; }
     flex-direction: column;
   }
 
+  .leaderboard-card,
+  .result-card-all {
+    gap: 10px;
+  }
+
   .row-item-main {
     width: 100%;
   }
@@ -833,6 +838,16 @@ img { max-width: 100%; display: block; }
   .rank-row > div:last-child {
     width: 100%;
     justify-content: flex-start !important;
+  }
+
+  .result-card-score {
+    width: 100%;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .result-card-progress {
+    width: 100%;
   }
 
   .tab-nav {
@@ -939,6 +954,65 @@ img { max-width: 100%; display: block; }
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.rank-row:hover {
+  transform: translateY(-2px);
+  border-color: rgba(59,130,246,0.24);
+  background: rgba(17,27,46,0.96);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+.leaderboard-card {
+  border-radius: 18px;
+  padding: 14px 16px;
+}
+
+.result-card {
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.result-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.result-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.result-card-meta {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.4;
+}
+
+.result-card-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 96px;
+  margin-left: auto;
+}
+
+.result-card-score-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
+
+.result-card-progress {
+  width: 100%;
+  margin-top: 4px;
 }
 
 .rank-num {
@@ -953,6 +1027,14 @@ img { max-width: 100%; display: block; }
 .rank-row-name { flex: 1; font-size: 14px; font-weight: 500; }
 .rank-row-roll { font-size: 12px; color: var(--ink-3); }
 .rank-row-marks { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--blue); }
+
+.leaderboard-cards .rank-num {
+  color: var(--cyan);
+}
+
+.result-grid .rank-num {
+  color: var(--blue);
+}
 
 /* ── Progress bar ── */
 .progress-bar {

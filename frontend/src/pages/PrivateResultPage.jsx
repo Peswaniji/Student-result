@@ -26,13 +26,6 @@ export default function PrivateResultPage() {
   const r = state.payload
   const maxMarks = r ? Number(r.maxMarks || r.test?.maxMarks || 100) : 100
   const percentage = r ? Math.round((r.marks / maxMarks) * 100) : 0
-  const grade = r
-    ? percentage >= 90 ? 'A+' : percentage >= 80 ? 'A' : percentage >= 70 ? 'B' : percentage >= 60 ? 'C' : percentage >= 40 ? 'D' : 'F'
-    : ''
-  const gradeColor = grade === 'A+' || grade === 'A' ? 'var(--green)'
-    : grade === 'B' ? 'var(--blue)'
-    : grade === 'C' ? 'var(--amber)'
-    : 'var(--red)'
 
   function resolveSheetUrl(sheet) {
     if (!sheet) return ''
@@ -158,14 +151,6 @@ export default function PrivateResultPage() {
               <div className="private-score-value">{r.marks}</div>
               <div className="private-score-label">out of {maxMarks}</div>
 
-              {/* Grade badge */}
-              <div style={{ marginTop: 12, marginBottom: 8 }}>
-                <span style={{
-                  fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 28,
-                  color: gradeColor
-                }}>{grade}</span>
-              </div>
-
               {/* Rank pill */}
               <div className="private-score-rank">
                 🏆 Rank #{r.rank}
@@ -195,7 +180,6 @@ export default function PrivateResultPage() {
                   ['📅 Date', r.test?.date?.slice(0, 10)],
                   ['📊 Marks', `${r.marks} / ${maxMarks}`],
                   ['🏅 Rank', `#${r.rank}`],
-                  ['📈 Grade', grade],
                 ].map(([key, val]) => (
                   <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>{key}</span>

@@ -69,6 +69,7 @@ export default function PublicTestPage() {
 
   const analytics = state.payload?.analytics
   const maxMarks = Number(analytics?.maxMarks || 100)
+  const testName = state.payload?.data?.[0]?.testId?.name || tests.find(t => t._id === testId)?.name || 'Test'
   const leaderboard = state.payload?.leaderboard || []
   const top3 = leaderboard.slice(0, 3)
 
@@ -111,6 +112,11 @@ export default function PublicTestPage() {
         <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
           {state.payload ? 'Test Results' : 'Loading...'}
         </h1>
+          {state.payload && (
+            <div style={{ fontSize: 13, color: 'var(--ink-2)', marginBottom: 10 }}>
+              Exam: {testName} · Max marks: {maxMarks}
+            </div>
+          )}
         {!routeTestId && tests.length > 0 && (
           <div className="card" style={{ marginTop: 10, marginBottom: 10, padding: 12 }}>
             <div className="field" style={{ marginBottom: 0 }}>
@@ -218,19 +224,21 @@ export default function PublicTestPage() {
           {/* Leaderboard */}
           {activeView === 'leaderboard' && (
             <div style={{ padding: '0 20px 32px' }} className="animate-fade-up">
-              <div className="rank-table">
+              <div className="rank-table leaderboard-cards">
                 {leaderboard.map((r, i) => (
-                  <div className="rank-row" key={r.rollNo} style={{ animationDelay: `${i * 0.05}s` }}>
+                  <div className="rank-row leaderboard-card" key={r.rollNo} style={{ animationDelay: `${i * 0.05}s` }}>
                     <div className={`rank-num ${i < 3 ? `rank-${i + 1}` : ''}`}>
-                      {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${r.rank}`}
+                      {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : r.rank}
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <div className="rank-row-name">{r.name}</div>
-                      <div className="rank-row-roll">{r.rollNo}</div>
+                    <div className="result-card-body" style={{ flex: 1 }}>
+                      <div className="result-card-name">{r.name}</div>
+                      <div className="result-card-meta">Roll number: {r.rollNo}</div>
+                      <div className="result-card-meta">Exam: {testName}</div>
                     </div>
-                    <div>
+                    <div className="result-card-score">
+                      <div className="result-card-score-label">You got</div>
                       <div className="rank-row-marks">{r.marks}/{maxMarks}</div>
-                      <div className="progress-bar" style={{ width: 60 }}>
+                      <div className="progress-bar result-card-progress">
                         <div className="progress-fill" style={{ width: `${Math.min((Number(r.marks) / maxMarks) * 100, 100)}%` }} />
                       </div>
                     </div>
@@ -258,22 +266,32 @@ export default function PublicTestPage() {
                   No students match your search
                 </div>
               ) : (
-                <div className="rank-table">
+                <div className="rank-table result-grid">
                   {filteredRows.map((row, i) => {
                     const name = row.studentId?.name || row.name || 'Unknown'
                     const rollNo = row.studentId?.rollNo || row.rollNo || '—'
                     const marks = row.marks
                     const rank = row.rank
+                    const rowTestName = row.testId?.name || testName
                     return (
-                      <div className="rank-row" key={`${rollNo}-${i}`}>
+                      <div className="rank-row result-card result-card-all" key={`${rollNo}-${i}`}>
                         <div className={`rank-num ${rank <= 3 ? `rank-${rank}` : ''}`} style={{ fontSize: 14 }}>
-                          #{rank}
+                          {rank}
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <div className="rank-row-name">{name}</div>
-                          <div className="rank-row-roll">{rollNo}</div>
+                        <div className="result-card-body" style={{ flex: 1 }}>
+                          <div className="result-card-name">Name: {name}</div>
+                          <div className="result-card-meta">Roll number: {rollNo}</div>
+                          <div className="result-card-meta">Exam: {rowTestName}</div>
+                          <div className="result-card-meta">Max marks: {maxMarks}</div>
+                          <div className="result-card-meta">You got: {marks}/{maxMarks}</div>
                         </div>
-                        <div className="rank-row-marks">{marks}/{maxMarks}</div>
+                        <div className="result-card-score">
+                          <div className="result-card-score-label">Rank</div>
+                          <div className="rank-row-marks">{rank}</div>
+                          <div className="progress-bar result-card-progress">
+                            <div className="progress-fill" style={{ width: `${Math.min((Number(marks) / maxMarks) * 100, 100)}%` }} />
+                          </div>
+                        </div>
                       </div>
                     )
                   })}
