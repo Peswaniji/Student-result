@@ -481,8 +481,12 @@ export default function AdminDashboard() {
                       type="file"
                       accept="image/*"
                       multiple
-                      capture="environment"
-                      onChange={e => setUploadFiles(Array.from(e.target.files || []))}
+                      onChange={e => {
+                        const newFiles = Array.from(e.target.files || []);
+                        if (newFiles.length === 0) return;
+                        setUploadFiles(prev => [...prev, ...newFiles]);
+                        e.target.value = null;
+                      }}
                     />
                     <div className="file-zone-icon">📸</div>
                     {uploadFiles.length > 0 ? (
